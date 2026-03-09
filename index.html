@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subway Surfers City · Save Editor</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #1e293b;
+  padding: 24px 16px;
+  max-width: 500px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* header with frosted glass effect */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 12px 20px;
+  border-radius: 60px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.8);
+}
+h1 {
+  color: #2d3748;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+h1:before { 
+  content: "🚂"; 
+  font-size: 1.6rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.lang-toggle { display: flex; gap: 8px; }
+.lang-btn {
+  padding: 6px 16px;
+  border-radius: 40px;
+  border: none;
+  background: #e2e8f0;
+  color: #4a5568;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.lang-btn.active {
+  background: #667eea;
+  color: white;
+  box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+}
+
+/* ========== UPLOAD UI ========== */
+.upload-card {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 40px;
+  padding: 28px 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.8);
+  text-align: center;
+}
+.upload-icon {
+  font-size: 3.2rem;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 8px 12px rgba(102,126,234,0.3));
+}
+.upload-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.upload-hint {
+  font-size: 0.85rem;
+  color: #718096;
+  margin-bottom: 24px;
+  letter-spacing: 0.01em;
+}
+.upload-button {
+  background: #f7fafc;
+  border: 2px dashed #a0aec0;
+  border-radius: 60px;
+  padding: 14px 18px;
+  width: 100%;
+  color: #4a5568;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.upload-button:hover {
+  background: #edf2f7;
+  border-color: #667eea;
+}
+.upload-button input {
+  display: none;
+}
+.upload-filename {
+  margin-top: 18px;
+  font-size: 0.95rem;
+  background: #edf2f7;
+  border-radius: 60px;
+  padding: 12px 18px;
+  color: #2d3748;
+  font-weight: 600;
+  border: 1px solid #cbd5e0;
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.upload-filename span { color: #718096; font-weight: normal; }
+
+.msg {
+  text-align: center;
+  padding: 12px 18px;
+  border-radius: 60px;
+  margin: 16px 0 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.msg.ok  { background: #c6f6d5; color: #22543d; border-left: 6px solid #48bb78; }
+.msg.err { background: #fed7d7; color: #742a2a; border-left: 6px solid #f56565; }
+.msg.info{ background: #bee3f8; color: #2c5282; border-left: 6px solid #4299e1; }
+
+/* tabs – modern segmented control */
+.tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  background: rgba(255,255,255,0.95);
+  padding: 8px;
+  border-radius: 48px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  backdrop-filter: blur(8px);
+}
+.tab {
+  flex: 1 0 auto;
+  min-width: 50px;
+  padding: 10px 8px;
+  border-radius: 40px;
+  border: none;
+  background: transparent;
+  color: #4a5568;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.tab.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+}
+
+/* panels – cards with soft shadows */
+.panel { display: none; }
+.panel.active { display: block; }
+.card {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 32px;
+  padding: 22px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 20px 40px -12px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.8);
+}
+
+label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #718096;
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+input[type=number] {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 24px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  color: #2d3748;
+  font-size: 1rem;
+  margin-bottom: 16px;
+  transition: all 0.2s;
+}
+input[type=number]:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
+}
+
+/* buttons – gradient style */
+button {
+  width: 100%;
+  padding: 15px 12px;
+  border-radius: 40px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: all 0.18s ease;
+  background: white;
+  color: #2d3748;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+.btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+.btn-success { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; }
+.btn-warning { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); color: white; }
+.btn-danger  { background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%); color: white; }
+.btn-gray    { background: linear-gradient(135deg, #a0aec0 0%, #718096 100%); color: white; }
+
+/* surfer/board items – pastel cards */
+.s-item {
+  background: white;
+  border-radius: 28px;
+  padding: 18px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 30px -12px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.8);
+}
+.s-name {
+  color: #2d3748;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.s-name:before { content: "🏃"; font-size: 1.1rem; }
+
+.s-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.s-row input[type=checkbox] {
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  border: 2px solid #cbd5e0;
+  accent-color: #667eea;
+  flex-shrink: 0;
+}
+.s-row label {
+  margin: 0;
+  color: #2d3748;
+  font-size: 0.9rem;
+  text-transform: none;
+  font-weight: 600;
+  flex: 1;
+}
+.s-fields {
+  display: flex;
+  gap: 14px;
+}
+.s-fields > div { flex: 1; }
+.s-fields label { font-size: 0.7rem; margin-bottom: 3px; color: #718096; }
+.s-fields input { margin-bottom: 0; padding: 12px 14px; border-radius: 30px; }
+
+/* bulk row – compact & aligned */
+.bulk-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.bulk-row input { margin: 0; flex: 1; }
+.bulk-row button {
+  width: auto;
+  padding: 12px 22px;
+  flex-shrink: 0;
+  margin: 0;
+  background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+  color: white;
+  font-weight: 600;
+}
+
+/* season pass indicator – chip style */
+.sp-status {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 14px 20px;
+  border-radius: 60px;
+  margin-bottom: 18px;
+  background: #edf2f7;
+}
+.sp-on  { background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%); color: #22543d; }
+.sp-off { background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%); color: #742a2a; }
+
+/* extra small */
+#sp-points-section { margin-top: 16px; }
+#msg-sp, #msg-save { margin-top: 10px; }
+
+/* ========== CREDIT FOOTER ========== */
+.footer-credit {
+  margin-top: 40px;
+  text-align: center;
+}
+.credit-card {
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 40px;
+  padding: 18px 20px;
+  box-shadow: 0 20px 40px -12px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.8);
+  width: 100%;
+}
+.credit-text {
+  font-size: 0.95rem;
+  color: #2d3748;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.credit-text span { 
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+.youtube-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  color: white !important;
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 60px;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.2s;
+  box-shadow: 0 8px 20px rgba(255,0,0,0.3);
+  width: auto;
+  min-width: 200px;
+}
+.youtube-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(255,0,0,0.4);
+}
+.youtube-icon { font-size: 1.3rem; }
+
+/* ========== FILE OPERATIONS ========== */
+.file-ops {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.file-ops button {
+  flex: 1;
+  margin: 0;
+  padding: 12px;
+}
+
+/* City specific styles */
+.city-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 40px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-left: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>subway surfers city <span class="city-badge">CITY</span></h1>
+  <div class="lang-toggle">
+    <button class="lang-btn active" onclick="setLang('de')">DE</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+  </div>
+</div>
+
+<!-- ========== UPLOAD UI ========== -->
+<div id="load-section">
+  <div class="upload-card">
+    <div class="upload-icon">🚂</div>
+    <div class="upload-title" data-de="Subway Surfers City" data-en="Subway Surfers City">Subway Surfers City</div>
+    <div class="upload-hint" data-de="Lade deine Spielstand-Datei" data-en="Load your save file">Lade deine Spielstand-Datei</div>
+    <label class="upload-button">
+      <span>📁</span>
+      <span data-de="Datei auswählen …" data-en="Choose file …">Datei auswählen …</span>
+      <input type="file" id="fileInput" accept="*">
+    </label>
+    <div id="file-name-display" class="upload-filename" style="display: none;">
+      <span>📄</span> <span id="file-name-text"></span>
+    </div>
+    <div id="msg-load"></div>
+    
+    <!-- File operation buttons -->
+    <div class="file-ops">
+      <button class="btn-primary" onclick="decodeFile()" data-de="📄 Decodieren" data-en="📄 Decode">📄 Decodieren</button>
+      <button class="btn-success" onclick="encodeFile()" data-de="🔐 Encodieren" data-en="🔐 Encode">🔐 Encodieren</button>
+    </div>
+  </div>
+</div>
+
+<!-- TABS (hidden until file loaded) -->
+<div id="main" style="display:none;">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('wallet',this)" data-de="💰 Währung" data-en="💰 Currency">💰 Währung</button>
+    <button class="tab" onclick="switchTab('player',this)" data-de="⭐ Spieler" data-en="⭐ Player">⭐ Spieler</button>
+    <button class="tab" onclick="switchTab('characters',this)" data-de="🏃 Charaktere" data-en="🏃 Characters">🏃 Charaktere</button>
+    <button class="tab" onclick="switchTab('boards',this)" data-de="🛹 Boards" data-en="🛹 Boards">🛹 Boards</button>
+    <button class="tab" onclick="switchTab('season',this)" data-de="🎫 Season" data-en="🎫 Season">🎫 Season</button>
+    <button class="tab" onclick="switchTab('save',this)" data-de="💾 Speichern" data-en="💾 Save">💾 Speichern</button>
+  </div>
+
+  <!-- WALLET -->
+  <div id="tab-wallet" class="panel active">
+    <div class="card">
+      <label data-de="Münzen" data-en="Coins">💰 Münzen</label>
+      <input type="number" id="coins" min="0" value="0">
+      <label data-de="Schlüssel" data-en="Keys">🔑 Schlüssel</label>
+      <input type="number" id="keys" min="0" value="0">
+      <label data-de="Wiederbelebungsdosen" data-en="Revive Cans">🥫 Wiederbelebungsdosen</label>
+      <input type="number" id="revives" min="0" value="0">
+      <label data-de="Sterne" data-en="Stars">⭐ Sterne</label>
+      <input type="number" id="stars" min="0" value="0">
+      <label data-de="Events" data-en="Event Coins">🎪 Event Münzen</label>
+      <input type="number" id="event-coins" min="0" value="0">
+    </div>
+  </div>
+
+  <!-- PLAYER -->
+  <div id="tab-player" class="panel">
+    <div class="card">
+      <label data-de="Level" data-en="Level">📊 Level</label>
+      <input type="number" id="level" min="1" value="1">
+      <label data-de="XP" data-en="XP">✨ XP</label>
+      <input type="number" id="xp" min="0" value="0">
+      <label data-de="Highscore" data-en="High Score">🏆 Highscore</label>
+      <input type="number" id="highscore" min="0" value="0">
+      <label data-de="Gesamtspiele" data-en="Total Games">🎮 Gesamtspiele</label>
+      <input type="number" id="total-games" min="0" value="0">
+    </div>
+  </div>
+
+  <!-- CHARACTERS (formerly SURFERS) -->
+  <div id="tab-characters" class="panel">
+    <div class="card">
+      <div class="bulk-row">
+        <input type="number" id="all-character-level" min="1" max="20" data-placeholder-de="Level (max 20)" data-placeholder-en="Level (max 20)" placeholder="Level (max 20)">
+        <button class="btn-primary" onclick="setAllCharacterLevels()" data-de="Alle Level" data-en="All Levels">Alle Level</button>
+      </div>
+      <div class="bulk-row">
+        <input type="number" id="all-score" min="0" data-placeholder-de="Highscore" data-placeholder-en="High Score" placeholder="Highscore">
+        <button class="btn-primary" onclick="setAllCharacterScores()" data-de="Alle HS" data-en="All HS">Alle HS</button>
+      </div>
+      <button class="btn-warning" onclick="unlockAllCharacters()" data-de="Alle freischalten" data-en="Unlock all">Alle freischalten</button>
+    </div>
+    <div id="character-list"></div>
+  </div>
+
+  <!-- BOARDS -->
+  <div id="tab-boards" class="panel">
+    <div class="card">
+      <div class="bulk-row">
+        <input type="number" id="all-board-level" min="1" max="20" data-placeholder-de="Level (max 20)" data-placeholder-en="Level (max 20)" placeholder="Level (max 20)">
+        <button class="btn-primary" onclick="setAllBoardLevels()" data-de="Alle Level" data-en="All Levels">Alle Level</button>
+      </div>
+      <button class="btn-warning" onclick="unlockAllBoards()" data-de="Alle freischalten" data-en="Unlock all">Alle freischalten</button>
+    </div>
+    <div id="board-list"></div>
+  </div>
+
+  <!-- SEASON PASS -->
+  <div id="tab-season" class="panel">
+    <div class="card">
+      <div id="sp-status" class="sp-status sp-off"></div>
+      <button id="sp-btn" class="btn-warning" onclick="toggleSeasonPass()"></button>
+      <div id="sp-points-section" style="display:none; margin-top:10px;">
+        <label data-de="Season Pass Punkte" data-en="Season Pass Points">🎫 Season Pass Punkte</label>
+        <input type="number" id="sp-points-val" min="0" placeholder="z.B. 5000">
+        <button class="btn-primary" onclick="applySpPoints()" data-de="Punkte setzen" data-en="Set Points">Punkte setzen</button>
+      </div>
+      <div id="msg-sp"></div>
+    </div>
+  </div>
+
+  <!-- SAVE -->
+  <div id="tab-save" class="panel">
+    <div class="card">
+      <button class="btn-success" onclick="saveFile()" data-de="💾 Speichern &amp; herunterladen" data-en="💾 Save &amp; download">💾 Speichern &amp; herunterladen</button>
+      <div id="msg-save"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== CREDIT FOOTER (VINZZ) ========== -->
+<div class="footer-credit">
+  <div class="credit-card">
+    <div class="credit-text">
+      <span>🚂 Subway Surfers City Editor</span> · hosted by <span>Vinzz</span>
+    </div>
+    <a href="https://youtube.com/@VinzzTownship" target="_blank" class="youtube-link">
+      <span class="youtube-icon">▶️</span> VinzzTownship
+    </a>
+    <div style="margin-top: 10px; font-size: 0.75rem; color: #718096;">
+      📺 Tutorials & Gaming
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Constants ──────────────────────────────────────────────
+const COINS_TAG  = -633437229;
+const KEYS_TAG   = -1085419483;
+const REVIVE_TAG = 1669706535;
+const STARS_TAG = 123456789; // Placeholder - adjust based on actual game
+const EVENT_COINS_TAG = 987654321; // Placeholder - adjust based on actual game
+const HIGHSCORE_TAG = 555555555; // Placeholder - adjust based on actual game
+const TOTAL_GAMES_TAG = 444444444; // Placeholder - adjust based on actual game
+
+// Character names for Subway Surfers
+const CHARACTER_NAMES = {
+  "1": "Jake",
+  "2": "Tricky",
+  "3": "Fresh",
+  "4": "Spike",
+  "5": "Yutani",
+  "6": "Dino",
+  "7": "Lucy",
+  "8": "Tagbot",
+  "9": "Prince K",
+  "10": "Zombie Jake",
+  "11": "Franken Fresh",
+  "12": "Ella",
+  "13": "Harumi",
+  "14": "Ninja",
+  "15": "King",
+  "16": "Tony",
+  "17": "Alex",
+  "18": "Brody",
+  "19": "Jasmine",
+  "20": "Edison",
+  "21": "Mina",
+  "22": "Freya",
+  "23": "Sun",
+  "24": "Tasha",
+  "25": "Jay",
+  "26": "Billy",
+  "27": "Miss Maia",
+  "28": "Meredith",
+  "29": "Jaro",
+  "30": "Zara",
+  "31": "Wei",
+  "32": "Noon",
+  "33": "Rosalita",
+  "34": "Jaewoo",
+  "35": "Victor",
+  "36": "Georgie",
+  "37": "Lilah",
+  "38": "Ash",
+  "39": "Jenny",
+  "40": "Monique"
+};
+
+const BOARD_NAMES = {
+  "1": "Standard Board",
+  "2": "Blue Board",
+  "3": "Green Board",
+  "4": "Red Board",
+  "5": "Purple Board",
+  "6": "Golden Board",
+  "7": "Dragon Board",
+  "8": "Ghost Board",
+  "9": "Lightning Board",
+  "10": "Hoverboard",
+  "11": "Monster Board",
+  "12": "Rainbow Board",
+  "13": "Skull Board",
+  "14": "Flame Board",
+  "15": "Ice Board",
+  "16": "Candy Board",
+  "17": "Pixel Board",
+  "18": "Galaxy Board",
+  "19": "Heart Board",
+  "20": "Star Board",
+  "21": "Moon Board",
+  "22": "Sun Board",
+  "23": "Cloud Board",
+  "24": "Wave Board",
+  "25": "Ninja Board"
+};
+
+// ── Language ───────────────────────────────────────────────
+let lang = 'de';
+const T = {
+  de: {
+    filePrompt:    "Tippe hier um die Spielstand-Datei zu laden",
+    loaded:        "Datei geladen!",
+    decoded:       "Datei decodiert!",
+    encoded:       "Datei encodiert!",
+    unlocked:      "Freigeschaltet",
+    level:         "Level (max 20)",
+    highscore:     "Highscore",
+    allUnlocked:   "Alle freigeschaltet!",
+    spActive:      "Season Pass: AKTIV ✓",
+    spInactive:    "Season Pass: INAKTIV",
+    spUnlock:      "Season Pass freischalten",
+    spLock:        "Season Pass sperren",
+    spPoints:      "Punkte gesetzt: ",
+    spActivated:   "Season Pass freigeschaltet!",
+    spDeactivated: "Season Pass gesperrt!",
+    saved:         'Gespeichert! Datei wird heruntergeladen',
+    error:         "Fehler: ",
+  },
+  en: {
+    filePrompt:    "Tap here to load the save file",
+    loaded:        "File loaded!",
+    decoded:       "File decoded!",
+    encoded:       "File encoded!",
+    unlocked:      "Unlocked",
+    level:         "Level (max 20)",
+    highscore:     "High Score",
+    allUnlocked:   "All unlocked!",
+    spActive:      "Season Pass: ACTIVE ✓",
+    spInactive:    "Season Pass: INACTIVE",
+    spUnlock:      "Unlock Season Pass",
+    spLock:        "Lock Season Pass",
+    spPoints:      "Points set: ",
+    spActivated:   "Season Pass unlocked!",
+    spDeactivated: "Season Pass locked!",
+    saved:         'Saved! File is downloading',
+    error:         "Error: ",
+  }
+};
+
+function t(key) { return T[lang][key] || key; }
+
+function setLang(l) {
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === l));
+  document.querySelectorAll('[data-de]').forEach(el => {
+    if (el.tagName === 'BUTTON') el.innerHTML = el.getAttribute('data-' + l);
+    else el.textContent = el.getAttribute('data-' + l);
+  });
+  document.querySelectorAll('[data-placeholder-' + l + ']').forEach(el => {
+    el.placeholder = el.getAttribute('data-placeholder-' + l);
+  });
+  document.querySelector('.upload-hint').textContent = (lang==='de' ? 'Lade deine Spielstand-Datei' : 'Load your save file');
+  document.querySelector('.upload-button span:last-child').textContent = (lang==='de' ? 'Datei auswählen …' : 'Choose file …');
+  if (fileLoaded) showMsg('msg-load', t('loaded'), 'ok');
+  updateSpUI();
+  if (inner) repopulateLabels();
+}
+
+function repopulateLabels() {
+  document.querySelectorAll('.s-unlock-label').forEach(el => el.textContent = t('unlocked'));
+  document.querySelectorAll('.s-level-label').forEach(el => el.textContent = t('level'));
+  document.querySelectorAll('.s-hs-label').forEach(el => el.textContent = t('highscore'));
+}
+
+// ── State ──────────────────────────────────────────────────
+let ctrBytes, keyBytes, outer, inner, fileLoaded = false;
+let currentFile = null;
+
+// ── File load ─────────────────────────────────
+document.getElementById('fileInput').addEventListener('change', function() {
+  const file = this.files[0];
+  const fileNameSpan = document.getElementById('file-name-text');
+  const fileNameDiv = document.getElementById('file-name-display');
+  if (!file) {
+    fileNameDiv.style.display = 'none';
+    return;
+  }
+  currentFile = file;
+  fileNameSpan.textContent = file.name;
+  fileNameDiv.style.display = 'flex';
+});
+
+// ── Decode File ───────────────────────────────
+async function decodeFile() {
+  if (!currentFile) {
+    showMsg('msg-load', t('error') + 'No file selected', 'err');
+    return;
+  }
+  
+  try {
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        const raw = new Uint8Array(e.target.result);
+        ctrBytes = raw.slice(0, 16);
+        keyBytes = raw.slice(16, 32);
+        const enc = raw.slice(32);
+        const ck = await crypto.subtle.importKey('raw', keyBytes, {name:'AES-CTR'}, false, ['decrypt']);
+        const plain = await crypto.subtle.decrypt({name:'AES-CTR', counter:ctrBytes, length:64}, ck, enc);
+        outer = JSON.parse(new TextDecoder().decode(plain));
+        inner = JSON.parse(outer.profile);
+        
+        populate();
+        document.getElementById('main').style.display = 'block';
+        fileLoaded = true;
+        showMsg('msg-load', t('decoded'), 'ok');
+      } catch(e) { 
+        showMsg('msg-load', t('error') + e.message, 'err'); 
+      }
+    };
+    reader.readAsArrayBuffer(currentFile);
+  } catch(e) { 
+    showMsg('msg-load', t('error') + e.message, 'err'); 
+  }
+}
+
+// ── Encode File ───────────────────────────────
+async function encodeFile() {
+  if (!currentFile) {
+    showMsg('msg-load', t('error') + 'No file selected', 'err');
+    return;
+  }
+  
+  try {
+    const defaultName = currentFile.name.replace(/\.[^/.]+$/, "") + "_encoded" + (currentFile.name.match(/\.[^/.]+$/) || ['.bin'])[0];
+    const fileName = prompt('Enter output filename:', defaultName);
+    if (!fileName) return;
+    
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        const raw = new Uint8Array(e.target.result);
+        ctrBytes = raw.slice(0, 16);
+        keyBytes = raw.slice(16, 32);
+        const enc = raw.slice(32);
+        
+        const result = new Uint8Array(32 + enc.byteLength);
+        result.set(ctrBytes,0);
+        result.set(keyBytes,16);
+        result.set(new Uint8Array(enc),32);
+        
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([result]));
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        showMsg('msg-load', t('encoded'), 'ok');
+      } catch(e) { 
+        showMsg('msg-load', t('error') + e.message, 'err'); 
+      }
+    };
+    reader.readAsArrayBuffer(currentFile);
+  } catch(e) { 
+    showMsg('msg-load', t('error') + e.message, 'err'); 
+  }
+}
+
+// ── Tabs ───────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ── Populate ───────────────────────────────────
+function getW(tag) { return (inner.wallet||[]).find(w => w.dataTag === tag); }
+
+function populate() {
+  const coins = getW(COINS_TAG);
+  const keys = getW(KEYS_TAG);
+  const revives = getW(REVIVE_TAG);
+  const stars = getW(STARS_TAG);
+  const eventCoins = getW(EVENT_COINS_TAG);
+  const highscore = getW(HIGHSCORE_TAG);
+  const totalGames = getW(TOTAL_GAMES_TAG);
+  
+  document.getElementById('coins').value = coins ? coins.count : 0;
+  document.getElementById('keys').value = keys ? keys.count : 0;
+  document.getElementById('revives').value = revives ? revives.count : 0;
+  document.getElementById('stars').value = stars ? stars.count : 0;
+  document.getElementById('event-coins').value = eventCoins ? eventCoins.count : 0;
+  document.getElementById('level').value = inner.level || 1;
+  document.getElementById('xp').value = inner.xp || 0;
+  document.getElementById('highscore').value = highscore ? highscore.count : 0;
+  document.getElementById('total-games').value = totalGames ? totalGames.count : 0;
+
+  // Characters (formerly surfers)
+  const cl = document.getElementById('character-list');
+  cl.innerHTML = '';
+  (inner.surferProfiles||[]).forEach((c,i) => {
+    const name = CHARACTER_NAMES[String(c.id)] || 'Character ' + i;
+    cl.innerHTML += `<div class="s-item">
+      <div class="s-name">${name}</div>
+      <div class="s-row">
+        <input type="checkbox" id="ch${i}" ${c.isUnlocked?'checked':''}>
+        <label class="s-unlock-label" for="ch${i}">${t('unlocked')}</label>
+      </div>
+      <div class="s-fields">
+        <div><label class="s-level-label">${t('level')}</label><input type="number" id="cl${i}" value="${c.level||1}" min="1" max="20"></div>
+        <div><label class="s-hs-label">${t('highscore')}</label><input type="number" id="cs${i}" value="${c.highScore||0}" min="0"></div>
+      </div>
+    </div>`;
+  });
+
+  // Boards
+  const bl = document.getElementById('board-list');
+  bl.innerHTML = '';
+  (inner.boardProfiles||[]).forEach((b,i) => {
+    const name = BOARD_NAMES[String(b.id)] || 'Board ' + i;
+    bl.innerHTML += `<div class="s-item">
+      <div class="s-name">${name}</div>
+      <div class="s-row">
+        <input type="checkbox" id="bu${i}" ${b.isUnlocked?'checked':''}>
+        <label class="s-unlock-label" for="bu${i}">${t('unlocked')}</label>
+      </div>
+      <div class="s-fields">
+        <div><label class="s-level-label">${t('level')}</label><input type="number" id="bl${i}" value="${b.level||1}" min="1" max="20"></div>
+      </div>
+    </div>`;
+  });
+
+  updateSpUI();
+}
+
+// ── Bulk actions ───────────────────────────────
+function unlockAllCharacters() { 
+  (inner.surferProfiles||[]).forEach((_,i) => { 
+    document.getElementById('ch'+i).checked=true; 
+  }); 
+  showMsg('msg-save', t('allUnlocked'), 'info'); 
+}
+
+function unlockAllBoards() { 
+  (inner.boardProfiles||[]).forEach((_,i) => { 
+    document.getElementById('bu'+i).checked=true; 
+  }); 
+  showMsg('msg-save', t('allUnlocked'), 'info'); 
+}
+
+function setAllCharacterLevels() { 
+  const v=Math.min(parseInt(document.getElementById('all-character-level').value)||1,20); 
+  (inner.surferProfiles||[]).forEach((_,i)=>{ 
+    document.getElementById('cl'+i).value=v; 
+  }); 
+}
+
+function setAllBoardLevels() { 
+  const v=Math.min(parseInt(document.getElementById('all-board-level').value)||1,20); 
+  (inner.boardProfiles||[]).forEach((_,i) =>{ 
+    document.getElementById('bl'+i).value=v; 
+  }); 
+}
+
+function setAllCharacterScores() { 
+  const v=parseInt(document.getElementById('all-score').value)||0; 
+  (inner.surferProfiles||[]).forEach((_,i)=>{ 
+    document.getElementById('cs'+i).value=v; 
+  }); 
+}
+
+// ── Season Pass ─────────────────────────────────
+function updateSpUI() {
+  if (!inner) return;
+  const active = inner.seasonPassPurchased;
+  const statusEl = document.getElementById('sp-status');
+  const btnEl    = document.getElementById('sp-btn');
+  statusEl.textContent = active ? t('spActive') : t('spInactive');
+  statusEl.className   = 'sp-status ' + (active ? 'sp-on' : 'sp-off');
+  btnEl.textContent    = active ? t('spLock') : t('spUnlock');
+  btnEl.className      = active ? 'btn-danger' : 'btn-warning';
+  document.getElementById('sp-points-section').style.display = active ? 'block' : 'none';
+  if (active) document.getElementById('sp-points-val').value = inner.seasonPassPoints || 0;
+}
+
+function toggleSeasonPass() {
+  inner.seasonPassPurchased = !inner.seasonPassPurchased;
+  updateSpUI();
+  showMsg('msg-sp', inner.seasonPassPurchased ? t('spActivated') : t('spDeactivated'), inner.seasonPassPurchased ? 'ok' : 'info');
+}
+
+function applySpPoints() {
+  inner.seasonPassPoints = parseInt(document.getElementById('sp-points-val').value)||0;
+  showMsg('msg-sp', t('spPoints') + inner.seasonPassPoints, 'ok');
+}
+
+// ── Save File ───────────────────────────────────
+async function saveFile() {
+  try {
+    const defaultName = "profile";
+    const fileName = prompt('Enter output filename:', defaultName);
+    if (!fileName) return;
+    
+    const setW = (tag, val) => { 
+      let i = getW(tag); 
+      if(i) i.count = val; 
+      else inner.wallet.push({dataTag:tag, count:val}); 
+    };
+    
+    setW(COINS_TAG, parseInt(document.getElementById('coins').value) || 0);
+    setW(KEYS_TAG, parseInt(document.getElementById('keys').value) || 0);
+    setW(REVIVE_TAG, parseInt(document.getElementById('revives').value) || 0);
+    setW(STARS_TAG, parseInt(document.getElementById('stars').value) || 0);
+    setW(EVENT_COINS_TAG, parseInt(document.getElementById('event-coins').value) || 0);
+    setW(HIGHSCORE_TAG, parseInt(document.getElementById('highscore').value) || 0);
+    setW(TOTAL_GAMES_TAG, parseInt(document.getElementById('total-games').value) || 0);
+    
+    inner.level = parseInt(document.getElementById('level').value) || 1;
+    inner.xp = parseInt(document.getElementById('xp').value) || 0;
+    
+    (inner.surferProfiles||[]).forEach((c,i) => {
+      c.isUnlocked = document.getElementById('ch' + i).checked;
+      c.wasSeen = c.isUnlocked;
+      c.level = Math.min(parseInt(document.getElementById('cl' + i).value) || 1, 20);
+      c.highScore = parseInt(document.getElementById('cs' + i).value) || 0;
+    });
+    
+    (inner.boardProfiles||[]).forEach((b,i) => {
+      b.isUnlocked = document.getElementById('bu' + i).checked;
+      b.wasSeen = b.isUnlocked;
+      b.level = Math.min(parseInt(document.getElementById('bl' + i).value) || 1, 20);
+    });
+    
+    outer.profile = JSON.stringify(inner);
+    const plain = new TextEncoder().encode(JSON.stringify(outer));
+    const ck = await crypto.subtle.importKey('raw', keyBytes, {name:'AES-CTR'}, false, ['encrypt']);
+    const enc = await crypto.subtle.encrypt({name:'AES-CTR', counter:ctrBytes, length:64}, ck, plain);
+    const result = new Uint8Array(32 + enc.byteLength);
+    result.set(ctrBytes,0); 
+    result.set(keyBytes,16); 
+    result.set(new Uint8Array(enc),32);
+    
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([result]));
+    a.download = fileName;
+    document.body.appendChild(a); 
+    a.click(); 
+    document.body.removeChild(a);
+    showMsg('msg-save', t('saved'), 'ok');
+  } catch(e) { 
+    showMsg('msg-save', t('error') + e.message, 'err'); 
+  }
+}
+
+// ── Helpers ─────────────────────────────────────
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'msg ' + type;
+  el.textContent = text;
+}
+</script>
+</body>
+</html>
